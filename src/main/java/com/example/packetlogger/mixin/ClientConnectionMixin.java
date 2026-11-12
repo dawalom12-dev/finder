@@ -12,19 +12,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientConnection.class)
 public class ClientConnectionMixin {
 
-    // Перехват исходящих пакетов (Client -> Server)
+    // Исходящие пакеты (Client -> Server)
     @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"))
-    private void onPacketSent(Packet<?> packet, CallbackInfo ci) {
+    private void packetlogger$onSend(Packet<?> packet, CallbackInfo ci) {
         if (PacketLoggerClient.loggingEnabled) {
-            System.out.println("[C2S] " + packet.getClass().getSimpleName() + " -> " + packet);
+            PacketLoggerClient.LOGGER.info("[C2S] {} -> {}", packet.getClass().getSimpleName(), packet);
         }
     }
 
-    // Перехват входящих пакетов (Server -> Client)
-    @Inject(method = "handlePacket", at = @At("HEAD"))
-    private static void onPacketReceived(Packet<?> packet, ChannelHandlerContext context, CallbackInfo ci) {
+    // Входящие пакеты (Server -> Client)
+    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V",
+            at = @At("HEAD"))
+    private void packetlogger$onReceive(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
         if (PacketLoggerClient.loggingEnabled) {
-            System.out.println("[S2C] " + packet.getClass().getSimpleName() + " -> " + packet);
+            PacketLoggerClient.LOGGER.info("[S2C] {} -> {}", packet.getClass().getSimpleName(), packet);
         }
     }
 }
