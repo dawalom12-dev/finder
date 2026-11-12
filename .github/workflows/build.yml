@@ -26,5 +26,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ServerIPViewer-Mod
+          name: PacketLogger-Mod
           path: build/libs/*.jar
