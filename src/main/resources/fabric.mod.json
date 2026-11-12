@@ -3,7 +3,7 @@
   "id": "packetlogger",
   "version": "${version}",
   "name": "Packet Logger",
-  "description": "Logs all incoming and outgoing packets",
+  "description": "Logs server connection events and retrieves backend server IPs via BungeeCord plugin messaging.",
   "authors": ["You"],
   "license": "MIT",
   "environment": "client",
