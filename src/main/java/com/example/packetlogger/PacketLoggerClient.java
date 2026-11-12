@@ -1,47 +1,41 @@
 package com.example.packetlogger;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 public class PacketLoggerClient implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("PacketLogger");
-    public static volatile boolean loggingEnabled = false;
-    private static KeyBinding toggleKey;
 
     @Override
     public void onInitializeClient() {
-        KeyBinding.Category category = KeyBinding.Category.create(
-                Identifier.of("packetlogger", "general")
-        );
+        // Срабатывает при каждом входе в игру, в том числе при смене сервера через прокси
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            SocketAddress address = handler.getConnection().getAddress();
+            report(client, "Connected to " + format(address));
+        });
+    }
 
-        toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.packetlogger.toggle",
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_F7,
-                category
-        ));
+    public static String format(SocketAddress address) {
+        if (address instanceof InetSocketAddress inet) {
+            String ip = inet.getAddress() != null ? inet.getAddress().getHostAddress() : "?";
+            return inet.getHostString() + " (" + ip + ":" + inet.getPort() + ")";
+        }
+        return String.valueOf(address);
+    }
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (toggleKey.wasPressed()) {
-                loggingEnabled = !loggingEnabled;
-                if (client.player != null) {
-                    Text state = loggingEnabled
-                            ? Text.literal("включено").formatted(Formatting.GREEN)
-                            : Text.literal("выключено").formatted(Formatting.RED);
-                    client.player.sendMessage(
-                            Text.literal("[PacketLogger] Логирование ").formatted(Formatting.YELLOW).append(state),
-                            false
-                    );
-                }
+    public static void report(net.minecraft.client.MinecraftClient client, String message) {
+        LOGGER.info(message);
+        client.execute(() -> {
+            if (client.player != null) {
+                client.player.sendMessage(
+                        Text.literal("[PacketLogger] " + message).formatted(Formatting.YELLOW), false);
             }
         });
     }
