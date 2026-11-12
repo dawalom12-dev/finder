@@ -1,18 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "serveripviewer",
+  "id": "packetlogger",
   "version": "${version}",
-  "name": "Server IP Viewer",
-  "description": "Показывает реальный IP сервера в GUI",
-  "authors": ["MineZone"],
-  "contact": {},
+  "name": "Packet Logger",
+  "description": "Logs all incoming and outgoing packets",
+  "authors": ["You"],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "ru.minezone.ipviewer.ServerIPViewer"
+      "com.example.packetlogger.PacketLoggerClient"
     ]
   },
+  "mixins": [
+    "packetlogger.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "~1.21",
