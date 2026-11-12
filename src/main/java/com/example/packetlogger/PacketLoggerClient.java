@@ -5,21 +5,24 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PacketLoggerClient implements ClientModInitializer {
-    public static boolean loggingEnabled = false;
+    public static final Logger LOGGER = LoggerFactory.getLogger("PacketLogger");
+    public static volatile boolean loggingEnabled = false;
     private static KeyBinding toggleKey;
 
     @Override
     public void onInitializeClient() {
-        // Создаём категорию для клавиши (правильный способ для 1.21.11)
         KeyBinding.Category category = KeyBinding.Category.create(
                 Identifier.of("packetlogger", "general")
         );
 
-        // Регистрируем клавишу с категорией
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.packetlogger.toggle",
                 InputUtil.Type.KEYSYM,
@@ -31,9 +34,13 @@ public class PacketLoggerClient implements ClientModInitializer {
             while (toggleKey.wasPressed()) {
                 loggingEnabled = !loggingEnabled;
                 if (client.player != null) {
-                    client.player.sendMessage(net.minecraft.text.Text.literal(
-                            "§e[PacketLogger] Логирование " + (loggingEnabled ? "§aвключено" : "§cвыключено")
-                    ), false);
+                    Text state = loggingEnabled
+                            ? Text.literal("включено").formatted(Formatting.GREEN)
+                            : Text.literal("выключено").formatted(Formatting.RED);
+                    client.player.sendMessage(
+                            Text.literal("[PacketLogger] Логирование ").formatted(Formatting.YELLOW).append(state),
+                            false
+                    );
                 }
             }
         });
