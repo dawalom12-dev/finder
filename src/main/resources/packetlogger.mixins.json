@@ -3,7 +3,6 @@
   "package": "com.example.packetlogger.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ClientPlayNetworkHandlerMixin",
     "ClientConnectionMixin"
   ],
   "injectors": {
