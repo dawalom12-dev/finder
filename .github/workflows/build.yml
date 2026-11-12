@@ -20,7 +20,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.14'   # Явно указываем совместимую версию
+          gradle-version: '8.14.3' # <-- РЕКОМЕНДУЕТСЯ ИСПОЛЬЗОВАТЬ ЭТУ ВЕРСИЮ
 
       - name: Build with Gradle
         run: gradle build
